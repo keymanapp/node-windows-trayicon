@@ -121,7 +121,7 @@ void CallJsWithOptionalString(Napi::Env env, Function callback, Context *context
 			} else {
 				callback.Call(context->Value(), {});
 			}
-			
+
 		}
 	}
 	if (data != nullptr) {
@@ -452,13 +452,28 @@ void CTrayIconContainer::PopupMenu()
 	if (GetCursorPos(&pt))
 	{
 		HMENU menu = CreatePopupMenu();
-		int i = 0;
+		int i = 1;
 		for (auto const &item : m_menuItems)
 		{
-			AppendMenuA(menu, MF_STRING, i++, item.m_caption.c_str());
+			if(item.m_caption == "-")
+			{
+				AppendMenuA(menu, MF_SEPARATOR, -1, NULL);
+			}
+			else
+			{
+				AppendMenuA(menu, MF_STRING, i, item.m_caption.c_str());
+			}
+			i++;
 		}
+
+		HWND activeHwnd = GetForegroundWindow();
+		SetForegroundWindow(m_hwnd);
 		UINT cmd = TrackPopupMenu(menu, TPM_RETURNCMD | TPM_RIGHTBUTTON, pt.x, pt.y, 0, m_hwnd, NULL);
-		m_OnMenuItem.BlockingCall(new std::string(m_menuItems[cmd].m_id));
+		PostMessage(m_hwnd, WM_NULL, 0, 0);
+		SetForegroundWindow(activeHwnd);
+		if(cmd > 0) {
+			m_OnMenuItem.BlockingCall(new std::string(m_menuItems[cmd-1].m_id));
+		}
 	}
 }
 
