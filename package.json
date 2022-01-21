@@ -3,6 +3,9 @@
 	"version": "3.0.0",
 	"description": "Create tray icon for windows",
 	"main": "index.js",
+	"os": [
+		"win32"
+	],
 	"scripts": {
 		"install": "node-gyp configure build"
 	},
